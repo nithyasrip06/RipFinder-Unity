@@ -1,4 +1,3 @@
-where should features section be
 # RipFinder-Unity
 
 An Augmented Reality application built with **Unity** and **Meta Quest 3** to visualize rip current detection in real time. The system integrates a **YOLOv8 ONNX model** using **Unity Sentis** and overlays bounding boxes on the passthrough camera feed to enhance beach safety.
