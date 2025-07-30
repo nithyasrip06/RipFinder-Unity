@@ -105,7 +105,7 @@ Inference time and frame rate are continuously calculated and displayed in real 
 ## 📸 Accessing Captured Screenshots (Passthrough)
 When a rip current is detected, a screenshot of the passthrough view is automatically saved to your Quest's internal storage using Unity's persistentDataPath. You can retrieve these screenshots using ADB (Android Debug Bridge) and USB Developer Mode. 
 
-> ⚠️ **Note**: Due to Meta Quest’s rendering limitations, elements from the Unity UI (bounding boxes, text, posters) are not included in the screenshots. Only the underlying passthrough camera image is captured and saved.
+> ⚠️ **Note**: Due to Meta Quest’s rendering limitations, bounding boxes are not included in the screenshots. Only the underlying passthrough camera image is captured and saved.
 
 1. Enable Developer Mode on Your Meta Quest 3
    - Open the Meta Quest mobile app
