@@ -116,6 +116,9 @@ When a rip current is detected, a screenshot of the passthrough view is automati
      ```
      brew install android-platform-tools
      ```
+   - On Windows:
+     Download [SDK Platform Tools from Google](https://developer.android.com/studio/releases/platform-tools)
+     Extract and remember the folder path
 3. Connect Your Quest to Your Computer
    - Connect your Meta Quest 3 to your computer via USB-C
    - Put on your headset and accept the **Allow USB Debugging** prompt
