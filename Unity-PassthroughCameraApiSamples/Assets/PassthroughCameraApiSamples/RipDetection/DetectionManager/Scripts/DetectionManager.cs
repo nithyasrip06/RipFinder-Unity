@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using Meta.XR.Samples;
 using UnityEngine;
 using UnityEngine.Events;
+using Unity.Sentis;
 
 namespace PassthroughCameraSamples.MultiObjectDetection
 {
@@ -31,6 +32,10 @@ namespace PassthroughCameraSamples.MultiObjectDetection
         [Space(10)]
         public UnityEvent<int> OnObjectsIdentified;
 
+        [SerializeField] private ModelAsset m_modelMedium;
+        [SerializeField] private ModelAsset m_modelNano;
+        private bool usingMedium = true;
+
         private bool m_isPaused = true;
         private List<GameObject> m_spwanedEntities = new();
         private bool m_isStarted = false;
@@ -49,7 +54,30 @@ namespace PassthroughCameraSamples.MultiObjectDetection
                 yield return null;
             }
             m_isSentisReady = true;
+
+            m_runInference.SetModel(m_modelMedium, "YOLOv8-medium");
+            m_uiMenuManager.UpdateLabelInformation();
         }
+
+        private void ToggleModel()
+        {
+            usingMedium = !usingMedium;
+
+            if (usingMedium)
+            {
+                m_runInference.SetModel(m_modelMedium, "YOLOv8-medium");
+                Debug.Log("Switched to YOLOv8-medium");
+            }
+            else
+            {
+                m_runInference.SetModel(m_modelNano, "YOLOv8-nano");
+                Debug.Log("Switched to YOLOv8-nano");
+            }
+
+            // Refresh UI label
+            m_uiMenuManager.UpdateLabelInformation();
+        }
+
 
         private void Update()
         {
@@ -68,6 +96,10 @@ namespace PassthroughCameraSamples.MultiObjectDetection
             }
             else
             {
+                if ((OVRInput.GetDown(OVRInput.RawButton.B) || Input.GetKeyDown(KeyCode.B)) && !m_runInference.IsRunning())
+                {
+                    ToggleModel();
+                }
                 // Press A button to spawn 3d markers
                 if ((OVRInput.GetUp(m_actionButton) || Input.GetKeyDown(KeyCode.A)) && m_delayPauseBackTime <= 0)
                 {

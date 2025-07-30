@@ -20,6 +20,7 @@ namespace PassthroughCameraSamples.MultiObjectDetection
         [SerializeField] private GameObject m_noPermissionPanel;
         [SerializeField] private Text m_labelInfromation;
         [SerializeField] private AudioSource m_buttonSound;
+        [SerializeField] private SentisInferenceRunManager m_inferenceManager;
         private float m_lastInferenceMs = 0f;
         private float m_lastFps = 0f;
 
@@ -121,11 +122,12 @@ namespace PassthroughCameraSamples.MultiObjectDetection
         #endregion
 
         #region Ui state: detection information
-        private void UpdateLabelInformation()
+        public void UpdateLabelInformation()
         {
             string inferenceTimeStr = m_lastInferenceMs > 0 ? $"{m_lastInferenceMs:0.00} ms" : "-- ms";
             string fpsStr = m_lastFps > 0 ? $"{m_lastFps:0.00} FPS" : "-- FPS";
-            m_labelInfromation.text = $"Unity Sentis version: 2.1.3\nAI model: Yolo\nInference time: {inferenceTimeStr}\nFrame rate: {fpsStr}";
+            string modelName = m_inferenceManager != null ? m_inferenceManager.GetModelType() : "--";
+            m_labelInfromation.text = $"Unity Sentis version: 2.1.3\nAI model: {modelName}\nInference time: {inferenceTimeStr}\nFrame rate: {fpsStr}";
         }
 
         public void SetInferenceStats(float inferenceTimeMs)

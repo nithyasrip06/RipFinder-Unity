@@ -18,7 +18,7 @@ namespace PassthroughCameraSamples.MultiObjectDetection
         [SerializeField] private int m_layersPerFrame = 25;
         [SerializeField] private TextAsset m_labelsAsset;
         public bool IsModelLoaded { get; private set; } = false;
-        //[SerializeField] private InferenceStatsUI m_statsUI;
+        [SerializeField] private string m_currentModel = "YOLOv8-medium";
         [SerializeField] private DetectionUiMenuManager m_detectionMenu;
         private float inferenceStartTime = 0f; 
         private float inferenceEndTime = 0f; 
@@ -53,6 +53,26 @@ namespace PassthroughCameraSamples.MultiObjectDetection
 
             m_uiInference.SetLabels(m_labelsAsset);
             LoadModel();
+        }
+
+        public string GetModelType()
+        {
+            return m_currentModel;
+        }
+
+        public void SetModel(ModelAsset newModel, string modelName)
+        {
+            m_sentisModel = newModel;
+            m_currentModel = modelName;
+            ReloadModel();
+        }
+
+        private void ReloadModel()
+        {
+            m_engine?.Dispose();
+            var model = ModelLoader.Load(m_sentisModel);
+            m_engine = new Worker(model, m_backend);
+            IsModelLoaded = true;
         }
 
         private void Update()

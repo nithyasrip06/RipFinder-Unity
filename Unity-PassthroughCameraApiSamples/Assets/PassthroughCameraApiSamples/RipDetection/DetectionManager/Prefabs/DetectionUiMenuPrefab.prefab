@@ -534,7 +534,9 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: PRESS [A] OR PINCH TO START
+  m_Text: 'PRESS [A] OR PINCH TO START
+
+    PRESS [B] TO CHANGE MODEL'
 --- !u!114 &6711942131464690349
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1807,6 +1809,7 @@ MonoBehaviour:
   m_noPermissionPanel: {fileID: 225161860600929460}
   m_labelInfromation: {fileID: 5035866059478431671}
   m_buttonSound: {fileID: 6850496571433932089}
+  m_inferenceManager: {fileID: 0}
   OnPause:
     m_PersistentCalls:
       m_Calls:

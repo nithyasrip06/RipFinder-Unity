@@ -1208,6 +1208,10 @@ PrefabInstance:
       value: 90
       objectReference: {fileID: 0}
     - target: {fileID: 5846769668076299689, guid: 259c0c899b7e0c14aa431eefdc0aacc6, type: 3}
+      propertyPath: m_inferenceManager
+      value: 
+      objectReference: {fileID: 1711459073}
+    - target: {fileID: 5846769668076299689, guid: 259c0c899b7e0c14aa431eefdc0aacc6, type: 3}
       propertyPath: m_labelInfromation
       value: 
       objectReference: {fileID: 627476151}
@@ -2280,6 +2284,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7042133912099342453, guid: 946c4bcf5ee78c2438bd71dd2f9fe1f9, type: 3}
+      propertyPath: m_modelNano
+      value: 
+      objectReference: {fileID: 5022602860645237092, guid: 0d5ec8a2d53864fb3adee2a54ca914b3, type: 3}
+    - target: {fileID: 7042133912099342453, guid: 946c4bcf5ee78c2438bd71dd2f9fe1f9, type: 3}
+      propertyPath: m_modelMedium
+      value: 
+      objectReference: {fileID: 5022602860645237092, guid: 1e528bc3b43964da3890e3ef7d0bc27e, type: 3}
     - target: {fileID: 7042133912099342453, guid: 946c4bcf5ee78c2438bd71dd2f9fe1f9, type: 3}
       propertyPath: m_uiInference
       value: 
