@@ -107,19 +107,19 @@ When a rip current is detected, a screenshot of the passthrough view is automati
 
 **Note:** Due to Meta Quest’s rendering limitations, elements from the Unity UI are not included in the screenshots. Only the underlying passthrough camera image is captured and saved.
 
-**1. Enable Developer Mode on Your Meta Quest 3**
+1. Enable Developer Mode on Your Meta Quest 3
    - Open the Meta Quest mobile app
    - Go to: Devices > Developer Mode
    - Toggle Developer Mode ON
-**2. Install ADB (Android Debug Bridge)**
+2. Install ADB (Android Debug Bridge)
    - On macOS:
      ```
      brew install android-platform-tools
      ```
-**3. Connect Your Quest to Your Computer**
+3. Connect Your Quest to Your Computer
    - Connect your Meta Quest 3 to your computer via USB-C
    - Put on your headset and accept the **Allow USB Debugging** prompt
-**4. Verify ADB Connection**
+4. Verify ADB Connection
    - In Terminal, run
      ```
      adb devices
@@ -133,7 +133,7 @@ When a rip current is detected, a screenshot of the passthrough view is automati
    - In Unity Editor, go to **Edit > Project Settings > Player > Android**
    - Under **Other Settings**, locate: **Package Name**
    - This is the path Unity uses for Application.persistentDataPath.
-**6. Pull Saved Images from Quest**
+6. Pull Saved Images from Quest
    - Once you've confirmed the package name, run this command:
      ```
      adb pull /sdcard/Android/data/com.package.name/files/ ./screenshots/
