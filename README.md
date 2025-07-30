@@ -79,37 +79,33 @@ Assets/Plugins/Android/AndroidManifest.xml
 
 ## ✅ Features
 
-### Real-time Rip Current Detection  
+# Real-time Rip Current Detection  
 Detects rip currents using a YOLOv8 ONNX model running locally on-device with Unity Sentis.
 
-### Passthrough AR View  
+# Passthrough AR View  
 Visualizes bounding boxes directly on the Meta Quest 3 passthrough camera feed for intuitive AR overlays.
 
-### Safety Guidance Poster  
+# Safety Guidance Poster  
 When a rip current is detected, a **safety poster** appears after a short delay to inform users of what actions to take.  
 
-### Screenshot Capture on Detection
+# Screenshot Capture on Detection
 When a rip current is detected, the system automatically saves a screenshot of the passthrough view to the Quest’s internal storage.
 
-### Hand and Controller Support  
+# Hand and Controller Support  
 Fully supports both Meta Quest hand tracking and controllers:
 - **Pinch to start** or press [A] on controller
 - **Distance grab** to reposition the poster using either hand gestures or controller triggers
 - **Press [B]** to toggle between different YOLOv8 models (e.g., nano / medium)
 
-### Performance Feedback  
+# Performance Feedback  
 Inference time and frame rate are continuously calculated and displayed in real time on the bottom UI panel, providing insight into model speed and efficiency.
 
 ---
 
-## 📝 Assets and Attribution
-- Rip Current Safety Poster from NOAA: [https://www.weather.gov/safety/ripcurrent-infographic](https://www.weather.gov/safety/ripcurrent-signs-brochures)
-- Source: NOAA (public domain)
-
----
-
 ## 📸 Accessing Captured Screenshots (Passthrough)
-When a rip current is detected, a screenshot of the passthrough view is automatically saved to your Quest's internal storage using Unity's persistentDataPath. You can retrieve these screenshots using ADB (Android Debug Bridge) and USB Developer Mode. **Note:** DDue to Meta Quest’s rendering limitations, elements from the Unity UI—such as bounding boxes, text, or poster overlays—are not included in the screenshots. Only the underlying passthrough camera image is captured and saved.
+When a rip current is detected, a screenshot of the passthrough view is automatically saved to your Quest's internal storage using Unity's persistentDataPath. You can retrieve these screenshots using ADB (Android Debug Bridge) and USB Developer Mode. 
+
+**Note:** Due to Meta Quest’s rendering limitations, elements from the Unity UI are not included in the screenshots. Only the underlying passthrough camera image is captured and saved.
 
 1. Enable Developer Mode on Your Meta Quest 3
    - Open the Meta Quest mobile app
@@ -144,6 +140,13 @@ When a rip current is detected, a screenshot of the passthrough view is automati
      ```
    - This copies all screenshots to a folder named ./screenshots/ on your local machine.
    - Run the command again to retrieve new screenshots after future detections.
+     
+---
+
+## 📝 Assets and Attribution
+- Rip Current Safety Poster from NOAA: [https://www.weather.gov/safety/ripcurrent-infographic](https://www.weather.gov/safety/ripcurrent-signs-brochures)
+- Source: NOAA (public domain)
+
 ---
 
 ## 📚 Acknowledgments
