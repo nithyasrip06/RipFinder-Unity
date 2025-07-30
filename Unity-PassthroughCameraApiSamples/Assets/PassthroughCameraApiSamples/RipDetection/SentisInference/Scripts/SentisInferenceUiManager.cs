@@ -30,6 +30,14 @@ namespace PassthroughCameraSamples.MultiObjectDetection
         public UnityEvent<int> OnObjectsDetected;
         [SerializeField] private GameObject ripCurrentPosterObject; 
         private bool posterDisplayed = false; 
+        [SerializeField] private SentisInferenceRunManager m_runManager;
+        
+        [SerializeField] private Text m_controlsInfoText;
+        private Coroutine m_restoreTextCoroutine;
+        private string m_baseFooterText = "Move the poster to reposition it.";
+        private float lastScreenshotTime = 0f;
+        private float screenshotCooldown = 3f;
+
 
         public List<BoundingBox> BoxDrawn = new();
 
@@ -75,6 +83,21 @@ namespace PassthroughCameraSamples.MultiObjectDetection
         {
             //Parse neural net m_labels
             m_labels = labelsAsset.text.Split('\n');
+        }
+
+        public void ShowScreenshotMessage()
+        {
+            if (m_restoreTextCoroutine != null)
+                StopCoroutine(m_restoreTextCoroutine);
+
+            m_controlsInfoText.text = m_baseFooterText + "\n📸 Screenshot captured!";
+            m_restoreTextCoroutine = StartCoroutine(RestoreFooterTextAfterDelay());
+        }
+
+        private IEnumerator RestoreFooterTextAfterDelay()
+        {
+            yield return new WaitForSeconds(5f);
+            m_controlsInfoText.text = m_baseFooterText;
         }
 
         public void SetDetectionCapture(Texture image)
@@ -129,11 +152,24 @@ namespace PassthroughCameraSamples.MultiObjectDetection
                     w = output[0, 2, i];
                     h = output[0, 3, i];
 
-                    if (classId == RIP_CLASS_ID && !posterDisplayed && ripCurrentPosterObject != null)
+                    if (classId == RIP_CLASS_ID)
                     {
-                        posterDisplayed = true;
-                        StartCoroutine(ShowPosterWithDelay());
+                        if (Time.time - lastScreenshotTime > screenshotCooldown)
+                        {
+                            lastScreenshotTime = Time.time;
+                            var texture = m_runManager.CapturePassthroughFrame(m_webCamTextureManager.WebCamTexture);
+                            m_runManager.SaveTextureAsPNG(texture, $"rip_{System.DateTime.Now:yyyyMMdd_HHmmss}.png");
+                            ShowScreenshotMessage();
+                        }
+
+                        // Show poster only once
+                        if (!posterDisplayed && ripCurrentPosterObject != null)
+                        {
+                            posterDisplayed = true;
+                            StartCoroutine(ShowPosterWithDelay());
+                        }
                     }
+
                 }
                 else if (channels == 5)
                 {
@@ -145,6 +181,14 @@ namespace PassthroughCameraSamples.MultiObjectDetection
                     y = output[0, 1, i];
                     w = output[0, 2, i];
                     h = output[0, 3, i];
+
+                    if (Time.time - lastScreenshotTime > screenshotCooldown)
+                    {
+                        lastScreenshotTime = Time.time;
+                        var texture = m_runManager.CapturePassthroughFrame(m_webCamTextureManager.WebCamTexture);
+                        m_runManager.SaveTextureAsPNG(texture, $"rip_{System.DateTime.Now:yyyyMMdd_HHmmss}.png");
+                        ShowScreenshotMessage();
+                    }
 
                     if (!posterDisplayed && ripCurrentPosterObject != null)
                     {

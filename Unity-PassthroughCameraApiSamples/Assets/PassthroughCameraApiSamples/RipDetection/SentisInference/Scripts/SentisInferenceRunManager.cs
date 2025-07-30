@@ -75,6 +75,31 @@ namespace PassthroughCameraSamples.MultiObjectDetection
             IsModelLoaded = true;
         }
 
+        public Texture2D CapturePassthroughFrame(Texture source)
+        {
+            RenderTexture rt = RenderTexture.GetTemporary(source.width, source.height, 0);
+            Graphics.Blit(source, rt);
+
+            RenderTexture previous = RenderTexture.active;
+            RenderTexture.active = rt;
+
+            Texture2D image = new Texture2D(source.width, source.height, TextureFormat.RGB24, false);
+            image.ReadPixels(new Rect(0, 0, rt.width, rt.height), 0, 0);
+            image.Apply();
+
+            RenderTexture.active = previous;
+            RenderTexture.ReleaseTemporary(rt);
+            return image;
+        }
+
+        public void SaveTextureAsPNG(Texture2D texture, string filename)
+        {
+            byte[] bytes = texture.EncodeToPNG();
+            string path = System.IO.Path.Combine(Application.persistentDataPath, filename);
+            System.IO.File.WriteAllBytes(path, bytes);
+            Debug.Log($"[RipFinder] Saved image to: {path}");
+        }
+
         private void Update()
         {
             //Debug.Log("[InferenceRunManager] Update called");

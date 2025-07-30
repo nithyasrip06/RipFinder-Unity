@@ -2116,6 +2116,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0cc36683f00754ee3ba9303b5060e815, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1819882644 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2279054344620247711, guid: 259c0c899b7e0c14aa431eefdc0aacc6, type: 3}
+  m_PrefabInstance: {fileID: 627476148}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f7201a12d95ffc409449d95f23cf332, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1884090188
 GameObject:
   m_ObjectHideFlags: 0
@@ -2359,6 +2370,10 @@ PrefabInstance:
       value: 0.84705883
       objectReference: {fileID: 0}
     - target: {fileID: 2184060436030677583, guid: 927c1b782bb796b4b9b433d533cbccca, type: 3}
+      propertyPath: m_runManager
+      value: 
+      objectReference: {fileID: 1711459073}
+    - target: {fileID: 2184060436030677583, guid: 927c1b782bb796b4b9b433d533cbccca, type: 3}
       propertyPath: m_fontColor.b
       value: 0.44705883
       objectReference: {fileID: 0}
@@ -2370,6 +2385,10 @@ PrefabInstance:
       propertyPath: m_fontColor.r
       value: 0.84705883
       objectReference: {fileID: 0}
+    - target: {fileID: 2184060436030677583, guid: 927c1b782bb796b4b9b433d533cbccca, type: 3}
+      propertyPath: m_controlsInfoText
+      value: 
+      objectReference: {fileID: 1819882644}
     - target: {fileID: 2184060436030677583, guid: 927c1b782bb796b4b9b433d533cbccca, type: 3}
       propertyPath: m_environmentRaycast
       value: 
