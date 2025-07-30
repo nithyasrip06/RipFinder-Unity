@@ -129,7 +129,7 @@ When a rip current is detected, a screenshot of the passthrough view is automati
      List of devices attached
      XXXXXXXXXXXX	device
      ```
-**5. Find Your Unity App’s Package Name**
+5. Find Your Unity App’s Package Name
    - In Unity Editor, go to **Edit > Project Settings > Player > Android**
    - Under **Other Settings**, locate: **Package Name**
    - This is the path Unity uses for Application.persistentDataPath.
