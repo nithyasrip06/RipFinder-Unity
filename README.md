@@ -88,10 +88,14 @@ Visualizes bounding boxes directly on the Meta Quest 3 passthrough camera feed f
 ### Safety Guidance Poster  
 When a rip current is detected, a **safety poster** appears after a short delay to inform users of what actions to take.  
 
+### Screenshot Capture on Detection
+When a rip current is detected, the system automatically saves a screenshot of the passthrough view to the Quest’s internal storage.
+
 ### Hand and Controller Support  
 Fully supports both Meta Quest hand tracking and controllers:
 - **Pinch to start** or press [A] on controller
 - **Distance grab** to reposition the poster using either hand gestures or controller triggers
+- **Press [B]** to toggle between different YOLOv8 models (e.g., nano / medium)
 
 ### Performance Feedback  
 Inference time and frame rate are continuously calculated and displayed in real time on the bottom UI panel, providing insight into model speed and efficiency.
@@ -102,6 +106,44 @@ Inference time and frame rate are continuously calculated and displayed in real 
 - Rip Current Safety Poster from NOAA: [https://www.weather.gov/safety/ripcurrent-infographic](https://www.weather.gov/safety/ripcurrent-signs-brochures)
 - Source: NOAA (public domain)
 
+---
+
+## 📸 Accessing Captured Screenshots (Passthrough)
+When a rip current is detected, a screenshot of the passthrough view is automatically saved to your Quest's internal storage using Unity's persistentDataPath. You can retrieve these screenshots using ADB (Android Debug Bridge) and USB Developer Mode. **Note:** DDue to Meta Quest’s rendering limitations, elements from the Unity UI—such as bounding boxes, text, or poster overlays—are not included in the screenshots. Only the underlying passthrough camera image is captured and saved.
+
+1. Enable Developer Mode on Your Meta Quest 3
+   - Open the Meta Quest mobile app
+   - Go to: Devices > Developer Mode
+   - Toggle Developer Mode ON
+2. Install ADB (Android Debug Bridge)
+   - On macOS:
+     ```
+     brew install android-platform-tools
+     ```
+3. Connect Your Quest to Your Computer
+   - Connect your Meta Quest 3 to your computer via USB-C
+   - Put on your headset and accept the **Allow USB Debugging** prompt
+4. Verify ADB Connection
+   - In Terminal, run
+     ```
+     adb devices
+     ```
+   - Expected output:
+     ```
+     List of devices attached
+     XXXXXXXXXXXX	device
+     ```
+5. Find Your Unity App’s Package Name
+   - In Unity Editor, go to **Edit > Project Settings > Player > Android**
+   - Under **Other Settings**, locate: **Package Name**
+   - This is the path Unity uses for Application.persistentDataPath.
+6. Pull Saved Images from Quest
+   - Once you've confirmed the package name, run this command:
+     ```
+     adb pull /sdcard/Android/data/com.package.name/files/ ./screenshots/
+     ```
+   - This copies all screenshots to a folder named ./screenshots/ on your local machine.
+   - Run the command again to retrieve new screenshots after future detections.
 ---
 
 ## 📚 Acknowledgments
