@@ -79,25 +79,25 @@ Assets/Plugins/Android/AndroidManifest.xml
 
 ## ✅ Features
 
-# Real-time Rip Current Detection  
+#### Real-time Rip Current Detection  
 Detects rip currents using a YOLOv8 ONNX model running locally on-device with Unity Sentis.
 
-# Passthrough AR View  
+#### Passthrough AR View  
 Visualizes bounding boxes directly on the Meta Quest 3 passthrough camera feed for intuitive AR overlays.
 
-# Safety Guidance Poster  
+#### Safety Guidance Poster  
 When a rip current is detected, a **safety poster** appears after a short delay to inform users of what actions to take.  
 
-# Screenshot Capture on Detection
+#### Screenshot Capture on Detection
 When a rip current is detected, the system automatically saves a screenshot of the passthrough view to the Quest’s internal storage.
 
-# Hand and Controller Support  
+#### Hand and Controller Support  
 Fully supports both Meta Quest hand tracking and controllers:
 - **Pinch to start** or press [A] on controller
 - **Distance grab** to reposition the poster using either hand gestures or controller triggers
 - **Press [B]** to toggle between different YOLOv8 models (e.g., nano / medium)
 
-# Performance Feedback  
+#### Performance Feedback  
 Inference time and frame rate are continuously calculated and displayed in real time on the bottom UI panel, providing insight into model speed and efficiency.
 
 ---
@@ -111,14 +111,17 @@ When a rip current is detected, a screenshot of the passthrough view is automati
    - Open the Meta Quest mobile app
    - Go to: Devices > Developer Mode
    - Toggle Developer Mode ON
+     
 2. Install ADB (Android Debug Bridge)
    - On macOS:
      ```
      brew install android-platform-tools
      ```
+   
 3. Connect Your Quest to Your Computer
    - Connect your Meta Quest 3 to your computer via USB-C
    - Put on your headset and accept the **Allow USB Debugging** prompt
+     
 4. Verify ADB Connection
    - In Terminal, run
      ```
@@ -129,10 +132,12 @@ When a rip current is detected, a screenshot of the passthrough view is automati
      List of devices attached
      XXXXXXXXXXXX	device
      ```
+     
 5. Find Your Unity App’s Package Name
    - In Unity Editor, go to **Edit > Project Settings > Player > Android**
    - Under **Other Settings**, locate: **Package Name**
    - This is the path Unity uses for Application.persistentDataPath.
+     
 6. Pull Saved Images from Quest
    - Once you've confirmed the package name, run this command:
      ```
