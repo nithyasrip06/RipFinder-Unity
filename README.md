@@ -89,13 +89,13 @@ Visualizes bounding boxes directly on the Meta Quest 3 passthrough camera feed f
 When a rip current is detected, a **safety poster** appears after a short delay to inform users of what actions to take.  
 
 ### Screenshot Capture on Detection
-When a rip current is detected, the system automatically saves a screenshot of the passthrough view to the Quest’s internal storage.
+The system automatically saves a screenshot of the passthrough view to the Quest’s internal storage when a rip current is detected.
 
 ### Hand and Controller Support  
 Fully supports both Meta Quest hand tracking and controllers:
 - **Pinch to start** or press [A] on controller
-- **Distance grab** to reposition the poster using either hand gestures or controller triggers
 - **Press [B]** to toggle between different YOLOv8 models (e.g., nano / medium)
+- **Distance grab** to reposition the poster using either hand gestures or controller triggers
 
 ### Performance Feedback  
 Inference time and frame rate are continuously calculated and displayed in real time on the bottom UI panel, providing insight into model speed and efficiency.
