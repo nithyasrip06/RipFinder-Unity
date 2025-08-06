@@ -81,6 +81,7 @@ Assets/Plugins/Android/AndroidManifest.xml
 
 ### Real-time Rip Current Detection  
 Detects rip currents using a YOLOv8 ONNX model running locally on-device with Unity Sentis.
+Supports multi-class detection and distinguishes between rip currents and sediment rip currents.
 
 ### Passthrough AR View  
 Visualizes bounding boxes directly on the Meta Quest 3 passthrough camera feed for intuitive AR overlays.
@@ -94,8 +95,11 @@ The system automatically saves a screenshot of the passthrough view to the Quest
 ### Hand and Controller Support  
 Fully supports both Meta Quest hand tracking and controllers:
 - **Pinch to start** or press [A] on controller
-- **Press [B]** to toggle between different YOLOv8 models (e.g., nano / medium)
+- **Press [B]** to toggle between different YOLOv8 models (e.g., nano / medium / multi-class)
 - **Distance grab** to reposition the poster using either hand gestures or controller triggers
+
+### Oriented Arrows for Direction
+An arrow overlay is anchored to each detection, showing the direction of the detected rip current in AR space for better spatial awareness.
 
 ### Performance Feedback  
 Inference time and frame rate are continuously calculated and displayed in real time on the bottom UI panel, providing insight into model speed and efficiency.
