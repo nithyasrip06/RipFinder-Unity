@@ -34,6 +34,9 @@ namespace PassthroughCameraSamples.MultiObjectDetection
 
         [SerializeField] private ModelAsset m_modelMedium;
         [SerializeField] private ModelAsset m_modelNano;
+        [SerializeField] private ModelAsset m_modelDualClass;
+        private enum ModelType { Medium, Nano, Dual }
+        private ModelType currentModel = ModelType.Medium;
         private bool usingMedium = true;
 
         private bool m_isPaused = true;
@@ -61,23 +64,24 @@ namespace PassthroughCameraSamples.MultiObjectDetection
 
         private void ToggleModel()
         {
-            usingMedium = !usingMedium;
-
-            if (usingMedium)
+            currentModel = (ModelType)(((int)currentModel + 1) % 3);
+            
+            switch (currentModel)
             {
-                m_runInference.SetModel(m_modelMedium, "YOLOv8-medium");
-                Debug.Log("Switched to YOLOv8-medium");
-            }
-            else
-            {
-                m_runInference.SetModel(m_modelNano, "YOLOv8-nano");
-                Debug.Log("Switched to YOLOv8-nano");
+                case ModelType.Medium:
+                    m_runInference.SetModel(m_modelMedium, "YOLOv8-medium");
+                    break;
+                case ModelType.Nano:
+                    m_runInference.SetModel(m_modelNano, "YOLOv8-nano");
+                    break;
+                case ModelType.Dual:
+                    m_runInference.SetModel(m_modelDualClass, "YOLOv8-dual");
+                    break;
             }
 
-            // Refresh UI label
+            Debug.Log($"Switched to {currentModel}");
             m_uiMenuManager.UpdateLabelInformation();
         }
-
 
         private void Update()
         {
