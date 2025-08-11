@@ -89,6 +89,9 @@ Visualizes bounding boxes directly on the Meta Quest 3 passthrough camera feed f
 ### Safety Guidance Poster  
 When a rip current is detected, a **safety poster** appears after a short delay to inform users of what actions to take.  
 
+### Dynamic Surf Forecast Web Page
+Integrates a live, auto-updating NOAA surf forecast for San Luis Obispo.
+
 ### Screenshot Capture on Detection
 The system automatically saves a screenshot of the passthrough view to the Quest’s internal storage when a rip current is detected.
 
