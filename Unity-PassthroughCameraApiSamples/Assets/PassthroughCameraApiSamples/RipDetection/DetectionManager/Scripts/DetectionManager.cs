@@ -13,6 +13,7 @@ namespace PassthroughCameraSamples.MultiObjectDetection
     public class RipFinderDetectionManager : MonoBehaviour
     {
         [SerializeField] private WebCamTextureManager m_webCamTextureManager;
+        [SerializeField] private LiveSnapshotPanel m_liveSnapshotPanel;
 
         [Header("Controls configuration")]
         [SerializeField] private OVRInput.RawButton m_actionButton = OVRInput.RawButton.A;
@@ -57,6 +58,7 @@ namespace PassthroughCameraSamples.MultiObjectDetection
                 yield return null;
             }
             m_isSentisReady = true;
+            if (m_liveSnapshotPanel != null) m_liveSnapshotPanel.gameObject.SetActive(true);
 
             m_runInference.SetModel(m_modelMedium, "YOLOv8-medium");
             m_uiMenuManager.UpdateLabelInformation();
