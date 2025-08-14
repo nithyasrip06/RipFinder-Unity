@@ -10,7 +10,6 @@ using System.Collections;
 using System;
 using System.Linq;
 
-
 namespace PassthroughCameraSamples.MultiObjectDetection
 {
     [MetaCodeSample("PassthroughCameraApiSamples-MultiObjectDetection")]
@@ -42,12 +41,12 @@ namespace PassthroughCameraSamples.MultiObjectDetection
 
         [SerializeField] private Text m_controlsInfoText;
         private Coroutine m_restoreTextCoroutine;
-        private string m_baseFooterText = "Pinch to grab poster from a distance\n and move to reposition.";
+        private string m_baseFooterText = "Pinch to grab poster from a distance\n and move to reposition. Press Meta\n button and open camera to record.";
         private float lastScreenshotTime = 0f;
         private float screenshotCooldown = 3f;
         private Dictionary<int, int> lastClassAssignments = new Dictionary<int, int>();
-        
-        private const float SWITCH_THRESHOLD = 0.001f; 
+
+        private const float SWITCH_THRESHOLD = 0.0005f;
 
         public List<BoundingBox> BoxDrawn = new();
 
@@ -56,6 +55,10 @@ namespace PassthroughCameraSamples.MultiObjectDetection
         private Transform m_displayLocation;
 
         private const int RIP_CLASS_ID = 0;
+
+        [Header("Coordinate options")]
+        [Tooltip("Enable if your passthrough/image feed is horizontally mirrored.")]
+        [SerializeField] private bool m_flipX = false;
 
         public struct BoundingBox
         {
@@ -127,8 +130,17 @@ namespace PassthroughCameraSamples.MultiObjectDetection
             m_detectionCanvas.UpdatePosition();
             ClearAnnotations();
 
-            var displayWidth = m_displayImage.rectTransform.rect.width;
-            var displayHeight = m_displayImage.rectTransform.rect.height;
+            // --- Aspect-preserving scale + letterbox for the RawImage target ---
+            var rect = m_displayImage.rectTransform.rect;
+            float dispW = rect.width, dispH = rect.height;
+
+            float sX = dispW / imageWidth;
+            float sY = dispH / imageHeight;
+            float s  = Mathf.Min(sX, sY);                   // uniform scale (fit)
+            float xPad = (dispW - imageWidth * s) * 0.5f;   // horizontal letterbox padding
+            float yPad = (dispH - imageHeight * s) * 0.5f;  // vertical letterbox padding
+            float halfW = dispW * 0.5f;
+            float halfH = dispH * 0.5f;
 
             int channels = output.shape[1];
             int boxes = output.shape[2];
@@ -193,7 +205,7 @@ namespace PassthroughCameraSamples.MultiObjectDetection
 
                     int boxId = i;
 
-                    bool isSediment = clsLogit > 0.0003f;
+                    bool isSediment = clsLogit > 0.0001f;
                     int currentClass = isSediment ? 1 : 0;
 
                     if (lastClassAssignments.TryGetValue(boxId, out int lastClass))
@@ -204,18 +216,18 @@ namespace PassthroughCameraSamples.MultiObjectDetection
                         }
                     }
                     lastClassAssignments[boxId] = currentClass;
-                   
-                    float classProb = Sigmoid(clsLogit); 
+
+                    float classProb = Sigmoid(clsLogit);
                     confidence = objProb * classProb;
 
-                    if (confidence >= 0.30f)
+                    if (confidence >= 0.15f)
                     {
                         x = output[0, 0, i];
                         y = output[0, 1, i];
                         w = output[0, 2, i];
                         h = output[0, 3, i];
 
-                        classId = currentClass;   
+                        classId = currentClass;
                         keep = true;
 
                         if (!posterDisplayed && ripCurrentPosterObject != null)
@@ -266,10 +278,23 @@ namespace PassthroughCameraSamples.MultiObjectDetection
 
                 if (!keep) continue;
 
-                var scaleX = displayWidth / imageWidth;
-                var scaleY = displayHeight / imageHeight;
-                var halfWidth = displayWidth / 2f;
-                var halfHeight = displayHeight / 2f;
+                // If model outputs normalized coords, convert to pixels first
+                if (w <= 1f && h <= 1f)
+                {
+                    x *= imageWidth;
+                    y *= imageHeight;
+                    w *= imageWidth;
+                    h *= imageHeight;
+                }
+
+                // Optional horizontal flip for mirrored sources
+                float xSrc = m_flipX ? (imageWidth - x) : x;
+
+                // Map model pixels -> RawImage local UI coords (origin at center)
+                float cx = xSrc * s - halfW + xPad;
+                float cy = y * s - halfH + yPad;
+                float ww = Mathf.Max(1f, w * s);
+                float hh = Mathf.Max(1f, h * s);
 
                 string safeLabel = (m_labels != null && classId >= 0 && classId < m_labels.Length)
                     ? m_labels[classId].Trim()
@@ -277,10 +302,10 @@ namespace PassthroughCameraSamples.MultiObjectDetection
 
                 var box = new BoundingBox
                 {
-                    CenterX = x * scaleX - halfWidth,
-                    CenterY = y * scaleY - halfHeight,
-                    Width   = w * scaleX,
-                    Height  = h * scaleY,
+                    CenterX = cx,
+                    CenterY = cy,
+                    Width   = ww,
+                    Height  = hh,
                     Label   = $"{safeLabel} ({(confidence * 100f):0.0}% confidence)",
                     ClassName = safeLabel,
                     Confidence = confidence,
@@ -299,15 +324,24 @@ namespace PassthroughCameraSamples.MultiObjectDetection
                 BoxDrawn.Add(b);
                 var color = GetColorForClass(b.ClassName);
 
-                DrawBox(b, m_activeBoxCount, color);   
+                DrawBox(b, m_activeBoxCount, color);
                 m_activeBoxCount++;
 
                 var arrow = GetOrCreateArrow();
                 if (arrow != null)
                 {
                     arrow.transform.SetParent(m_arrowCanvasParent, false);
-                    arrow.GetComponent<RectTransform>().anchoredPosition = new Vector2(b.CenterX, -b.CenterY);
-                    arrow.GetComponent<RectTransform>().rotation = Quaternion.Euler(0, 0, 0);
+
+                    // Ensure arrow ignores layout too (just in case parent has a LayoutGroup)
+                    var le = arrow.GetComponent<LayoutElement>() ?? arrow.AddComponent<LayoutElement>();
+                    le.ignoreLayout = true;
+
+                    var rt = arrow.GetComponent<RectTransform>();
+                    rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0.5f);
+                    rt.pivot = new Vector2(0.5f, 0.5f);
+                    rt.anchoredPosition = new Vector2(b.CenterX, -b.CenterY); // UI Y-down
+                    rt.localRotation = Quaternion.identity;
+                    rt.localScale = Vector3.one;
                     arrow.SetActive(true);
                 }
             }
@@ -329,7 +363,6 @@ namespace PassthroughCameraSamples.MultiObjectDetection
             if (Time.frameCount % 30 == 0)
                 CleanupOldAssignments();
         }
-
 
         private static float IoU(BoundingBox a, BoundingBox b)
         {
@@ -383,7 +416,6 @@ namespace PassthroughCameraSamples.MultiObjectDetection
             return idxs;
         }
 
-
         private GameObject GetOrCreateArrow()
         {
             foreach (var arrow in m_arrowPool)
@@ -392,7 +424,7 @@ namespace PassthroughCameraSamples.MultiObjectDetection
                     return arrow;
             }
 
-            if (m_arrowPool.Count >= 1) 
+            if (m_arrowPool.Count >= 5)
                 return null;
 
             GameObject newArrow = Instantiate(m_arrowPrefab);
@@ -431,32 +463,36 @@ namespace PassthroughCameraSamples.MultiObjectDetection
             var img = panel.GetComponent<Image>();
             if (img != null) img.color = color;
 
-            panel.transform.localPosition = new Vector3(
-                box.CenterX, -box.CenterY, box.WorldPos.HasValue ? box.WorldPos.Value.z : 0.0f);
-
-            panel.transform.rotation =
-                Quaternion.LookRotation(panel.transform.position - m_detectionCanvas.GetCapturedCameraPosition());
-
             var rt = panel.GetComponent<RectTransform>();
+            rt.anchoredPosition = new Vector2(box.CenterX, -box.CenterY); // UI Y-down
             rt.sizeDelta = new Vector2(box.Width, box.Height);
+            rt.localRotation = Quaternion.identity;
+            rt.localScale = Vector3.one;
+
+            // Only face camera for World Space canvases
+            var canvas = panel.GetComponentInParent<Canvas>();
+            if (canvas != null && canvas.renderMode == RenderMode.WorldSpace)
+            {
+                panel.transform.rotation =
+                    Quaternion.LookRotation(panel.transform.position - m_detectionCanvas.GetCapturedCameraPosition());
+            }
 
             var label = panel.GetComponentInChildren<Text>();
             label.text = box.Label;
 
             if (box.ClassName.Equals("sediment_rip", System.StringComparison.OrdinalIgnoreCase))
-                label.color = new Color(0.216f, 0.847f, 0.259f);  
+                label.color = new Color(0.216f, 0.847f, 0.259f);
             else if (box.ClassName.Equals("rip", System.StringComparison.OrdinalIgnoreCase))
-                label.color = new Color(0.847f, 0.212f, 0.447f); 
+                label.color = new Color(0.847f, 0.212f, 0.447f);
             else
                 label.color = m_fontColor;
 
             label.fontSize = 12;
         }
 
-
         private GameObject CreateNewBox(Color color)
         {
-            //Create the box and set image
+            // Create the box and set image
             var panel = new GameObject("ObjectBox");
             _ = panel.AddComponent<CanvasRenderer>();
             var img = panel.AddComponent<Image>();
@@ -466,7 +502,17 @@ namespace PassthroughCameraSamples.MultiObjectDetection
             img.fillCenter = false;
             panel.transform.SetParent(m_displayLocation, false);
 
-            //Create the label
+            // Centered anchors/pivot so multiple boxes don't stretch/slide
+            var rt = panel.GetComponent<RectTransform>();
+            rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0.5f);
+            rt.pivot = new Vector2(0.5f, 0.5f);
+            rt.localScale = Vector3.one;
+
+            // Ignore parent LayoutGroups trying to move/resize us
+            var le = panel.AddComponent<LayoutElement>();
+            le.ignoreLayout = true;
+
+            // Create the label
             var text = new GameObject("ObjectLabel");
             _ = text.AddComponent<CanvasRenderer>();
             text.transform.SetParent(panel.transform, false);
@@ -477,12 +523,10 @@ namespace PassthroughCameraSamples.MultiObjectDetection
             txt.horizontalOverflow = HorizontalWrapMode.Overflow;
 
             var rt2 = text.GetComponent<RectTransform>();
-            rt2.offsetMin = new Vector2(20, rt2.offsetMin.y);
-            rt2.offsetMax = new Vector2(0, rt2.offsetMax.y);
-            rt2.offsetMin = new Vector2(rt2.offsetMin.x, 0);
-            rt2.offsetMax = new Vector2(rt2.offsetMax.x, 30);
             rt2.anchorMin = new Vector2(0, 0);
             rt2.anchorMax = new Vector2(1, 1);
+            rt2.offsetMin = new Vector2(20, 0);
+            rt2.offsetMax = new Vector2(0, 30);
 
             m_boxPool.Add(panel);
             return panel;

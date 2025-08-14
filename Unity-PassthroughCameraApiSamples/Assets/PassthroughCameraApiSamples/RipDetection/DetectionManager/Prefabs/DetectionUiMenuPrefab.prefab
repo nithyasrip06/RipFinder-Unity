@@ -1587,18 +1587,19 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
-    m_FontSize: 22
+    m_FontSize: 18
     m_FontStyle: 0
     m_BestFit: 0
-    m_MinSize: 2
+    m_MinSize: 1
     m_MaxSize: 36
     m_Alignment: 2
     m_AlignByGeometry: 0
     m_RichText: 1
-    m_HorizontalOverflow: 0
+    m_HorizontalOverflow: 1
     m_VerticalOverflow: 1
     m_LineSpacing: 1
-  m_Text: "Pinch to grab poster from a distance \nand move to reposition.\n"
+  m_Text: "Pinch to grab poster from a distance \nand move to reposition. Press Meta
+    \nbutton and open Camera to record."
 --- !u!1 &8303431974483125155
 GameObject:
   m_ObjectHideFlags: 0
