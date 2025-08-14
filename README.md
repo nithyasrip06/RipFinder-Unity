@@ -93,7 +93,7 @@ When a rip current is detected, a **safety poster** appears after a short delay 
 Integrates a live, auto-updating NOAA surf forecast for San Luis Obispo.
 
 ### Screenshot Capture on Detection
-The system automatically saves a screenshot of the passthrough view to the Quest’s internal storage when a rip current is detected.
+The app automatically saves a screenshot of the passthrough view to the headset’s internal storage when a rip current is detected. These in-app screenshots do **not** include overlays; to capture bounding boxes and UI, use the native Quest Camera to record video or take photos.
 
 ### Hand and Controller Support  
 Fully supports both Meta Quest hand tracking and controllers:
@@ -106,6 +106,24 @@ An arrow overlay is anchored to each detection, showing the direction of the det
 
 ### Performance Feedback  
 Inference time and frame rate are continuously calculated and displayed in real time on the bottom UI panel, providing insight into model speed and efficiency.
+
+---
+
+## 🎥 Recording & Photos with the Native Quest Camera
+You can use the built-in Quest camera to record video or take photos of the app. 
+
+> ⚠️ **Note**: Native Quest recordings and photos include the full AR view (bounding boxes and UI overlays). The automatic in-app screenshots only capture the passthrough camera image and do not include overlays due to platform limitations. To avoid duplicate media, you can disable in-app screenshots. 
+
+**Record a video**
+1. Press the Meta button on your right controller to open the Universal Menu.
+2. Open Camera.
+3. Choose Record video to start.
+4. To stop, open Camera again and select Stop.
+   
+**Take a photo**
+1. Press the Meta button.
+2. Open Camera.
+3. Select Take photo.
 
 ---
 
