@@ -66,7 +66,7 @@ This is the main custom scene that runs the YOLOv8 model on the passthrough feed
 Make sure the following permissions are granted to the app on your Quest 3:
 
 - `android.permission.CAMERA`
-- `com.horizonos.permission.HEADSET_CAMERA`
+- `horizonos.permission.HEADSET_CAMERA`
 
 You can do this by modifying the `AndroidManifest.xml` file located at 
 ```
