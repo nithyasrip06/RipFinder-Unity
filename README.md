@@ -172,9 +172,10 @@ When a rip current is detected, a screenshot of the passthrough view is automati
 ---
 
 ## 📝 Assets and Attribution
-- Rip Current Safety Poster from NOAA: [https://www.weather.gov/safety/ripcurrent-infographic](https://www.weather.gov/safety/ripcurrent-signs-brochures)
-- Surf Zone Forecast (NWS Los Angeles/Oxnard – LOX):[https://forecast.weather.gov/product.php?site=LOX&issuedby=LOX&product=SRF&format=CI&version=1&glossary=1&highlight=on](https://forecast.weather.gov/product.php?site=LOX&issuedby=LOX&product=SRF&format=CI&version=1&glossary=1&highlight=on)
-- Source: NOAA (public domain)
+- Rip Current Safety Poster (NOAA): [https://www.weather.gov/safety/ripcurrent-signs-brochures](https://www.weather.gov/safety/ripcurrent-signs-brochures)
+- Surf Zone Forecast (NWS Los Angeles/Oxnard – LOX, SRF): [https://forecast.weather.gov/product.php?site=LOX&issuedby=LOX&product=SRF&format=CI&version=1&glossary=1&highlight=on](https://forecast.weather.gov/product.php?site=LOX&issuedby=LOX&product=SRF&format=CI&version=1&glossary=1&highlight=on)
+
+Source: NOAA / National Weather Service. U.S. Government work; generally public domain unless otherwise noted.
 
 ---
 
