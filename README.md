@@ -118,7 +118,6 @@ You can use the built-in Quest camera to record video or take photos of the app.
 1. Press the Meta button on right controller to open the Universal Menu.
 2. Open Camera.
 3. Choose Record video to start.
-4. To stop, open Camera again and select Stop.
    
 **Take a photo**
 1. Press the Meta button.
