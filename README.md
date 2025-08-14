@@ -188,6 +188,4 @@ This project builds on Meta’s [Unity-PassthroughCameraApiSamples](https://gith
 - Scripts in `Assets/PassthroughCameraApiSamples/MultiObjectDetection/SentisInference/Model` are licensed under **MIT**
 - All other components follow the **Oculus License**
 
-See the `LICENSE` file for details.
-
 ---
