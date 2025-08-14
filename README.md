@@ -115,7 +115,7 @@ You can use the built-in Quest camera to record video or take photos of the app.
 > ⚠️ **Note**: Native Quest recordings and photos include the full AR view (bounding boxes and UI overlays). The automatic in-app screenshots only capture the passthrough camera image and do not include overlays due to platform limitations. To avoid duplicate media, you can disable in-app screenshots. 
 
 **Record a video**
-1. Press the Meta button on your right controller to open the Universal Menu.
+1. Press the Meta button on right controller to open the Universal Menu.
 2. Open Camera.
 3. Choose Record video to start.
 4. To stop, open Camera again and select Stop.
@@ -173,6 +173,7 @@ When a rip current is detected, a screenshot of the passthrough view is automati
 
 ## 📝 Assets and Attribution
 - Rip Current Safety Poster from NOAA: [https://www.weather.gov/safety/ripcurrent-infographic](https://www.weather.gov/safety/ripcurrent-signs-brochures)
+- Surf Zone Forecast (NWS Los Angeles/Oxnard – LOX):[https://forecast.weather.gov/product.php?site=LOX&issuedby=LOX&product=SRF&format=CI&version=1&glossary=1&highlight=on](https://forecast.weather.gov/product.php?site=LOX&issuedby=LOX&product=SRF&format=CI&version=1&glossary=1&highlight=on)
 - Source: NOAA (public domain)
 
 ---
