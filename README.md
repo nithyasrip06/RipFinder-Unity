@@ -7,7 +7,10 @@ An Augmented Reality application built with **Unity** and **Meta Quest 3** to vi
 ---
 
 ## Demo
-[![Demo Video](Unity-PassthroughCameraApiSamples/Assets/demo-thumbnail.png)](https://drive.google.com/file/d/1lbjzIdrEDZhnlRlkDCeo5Wo3o5meqy6E/view?usp=sharing)
+<h3>Watch Video</h3>
+<a href="https://drive.google.com/file/d/1lbjzIdrEDZhnlRlkDCeo5Wo3o5meqy6E/view?usp=sharing">
+  <img src="Unity-PassthroughCameraApiSamples/Assets/demo-thumbnail.png" alt="Demo Video" width="400"/>
+</a>
 
 ---
 
