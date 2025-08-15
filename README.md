@@ -7,8 +7,7 @@ An Augmented Reality application built with **Unity** and **Meta Quest 3** to vi
 ---
 
 ## Demo
-[Watch Demo Here](https://drive.google.com/file/d/1lbjzIdrEDZhnlRlkDCeo5Wo3o5meqy6E/view?usp=sharing)
-<img width="468" height="472" alt="image" src="https://github.com/user-attachments/assets/13cbac82-389e-46b9-99f5-80d42e276281" />
+[![Demo Video](./assets/demo-thumbnail.png)](https://drive.google.com/file/d/1lbjzIdrEDZhnlRlkDCeo5Wo3o5meqy6E/view?usp=sharing)
 
 ---
 
