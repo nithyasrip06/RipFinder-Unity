@@ -230,6 +230,7 @@ GameObject:
   - component: {fileID: 15454004}
   - component: {fileID: 15454005}
   - component: {fileID: 15454006}
+  - component: {fileID: 15454007}
   m_Layer: 0
   m_Name: RipFinderAIIntegration
   m_TagString: Untagged
@@ -294,7 +295,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   agentClient: {fileID: 15454001}
   beach: Pismo Beach
-  forecast: High rip current risk through this evening.
+  forecast: 
   cooldownSeconds: 15
   confidenceChangeThreshold: 0.1
 --- !u!114 &15454005
@@ -323,7 +324,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   inferenceManager: {fileID: 1711459073}
-  testImage: {fileID: 2800000, guid: cfac1e9ae8a024c22a474c8f7ef5a30d, type: 3}
+  testImage: {fileID: 2800000, guid: 224583c8b450f4e8d8dfe63c76616351, type: 3}
+--- !u!114 &15454007
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 15454000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 27b70bda9a3914024b33bbeb016933e9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  assessmentCoordinator: {fileID: 15454004}
+  forecastUrl: https://forecast.weather.gov/product.php?site=LOX&issuedby=LOX&product=SRF&format=txt&version=1
+  refreshMinutes: 30
 --- !u!1 &58658769
 GameObject:
   m_ObjectHideFlags: 0
