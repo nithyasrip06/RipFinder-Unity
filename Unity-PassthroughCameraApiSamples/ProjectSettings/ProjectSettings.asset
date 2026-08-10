@@ -166,6 +166,7 @@ PlayerSettings:
   androidMinAspectRatio: 1
   applicationIdentifier:
     Android: com.samples.passthroughcamera
+    Standalone: com.samples.passthroughcamera
   buildNumber:
     Standalone: 0
     VisionOS: 0
