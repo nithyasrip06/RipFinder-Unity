@@ -242,7 +242,9 @@ namespace PassthroughCameraSamples.MultiObjectDetection
         {
             m_displayImage.texture = image;
 
+#if UNITY_ANDROID && !UNITY_EDITOR
             m_detectionCanvas.CapturePosition();
+#endif
         }
 
 
@@ -263,7 +265,9 @@ namespace PassthroughCameraSamples.MultiObjectDetection
             float imageHeight
         )
         {
+#if UNITY_ANDROID && !UNITY_EDITOR
             m_detectionCanvas.UpdatePosition();
+#endif
 
             ClearAnnotations();
 
@@ -390,6 +394,7 @@ namespace PassthroughCameraSamples.MultiObjectDetection
                                 lastScreenshotTime =
                                     Time.time;
 
+#if UNITY_ANDROID && !UNITY_EDITOR
                                 var texture =
                                     m_runManager
                                         .CapturePassthroughFrame(
@@ -404,6 +409,7 @@ namespace PassthroughCameraSamples.MultiObjectDetection
                                     );
 
                                 ShowScreenshotMessage();
+#endif
                             }
 
 
@@ -521,6 +527,7 @@ namespace PassthroughCameraSamples.MultiObjectDetection
                             lastScreenshotTime =
                                 Time.time;
 
+#if UNITY_ANDROID && !UNITY_EDITOR
                             var texture =
                                 m_runManager
                                     .CapturePassthroughFrame(
@@ -535,6 +542,7 @@ namespace PassthroughCameraSamples.MultiObjectDetection
                                 );
 
                             ShowScreenshotMessage();
+#endif
                         }
                     }
                 }
@@ -584,6 +592,7 @@ namespace PassthroughCameraSamples.MultiObjectDetection
                             lastScreenshotTime =
                                 Time.time;
 
+#if UNITY_ANDROID && !UNITY_EDITOR
                             var texture =
                                 m_runManager
                                     .CapturePassthroughFrame(
@@ -598,6 +607,7 @@ namespace PassthroughCameraSamples.MultiObjectDetection
                                 );
 
                             ShowScreenshotMessage();
+#endif
                         }
                     }
                 }
@@ -1255,9 +1265,9 @@ namespace PassthroughCameraSamples.MultiObjectDetection
 
 
             // Only face camera for World Space canvases
+#if UNITY_ANDROID && !UNITY_EDITOR
             var canvas =
                 panel.GetComponentInParent<Canvas>();
-
 
             if (
                 canvas != null &&
@@ -1273,6 +1283,7 @@ namespace PassthroughCameraSamples.MultiObjectDetection
                             .GetCapturedCameraPosition()
                     );
             }
+#endif
 
 
             var label =
