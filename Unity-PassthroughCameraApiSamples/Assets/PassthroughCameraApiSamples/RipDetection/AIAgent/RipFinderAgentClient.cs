@@ -7,13 +7,20 @@ using UnityEngine.Networking;
 public sealed class RipFinderAgentClient : MonoBehaviour
 {
     [Header("Connection")]
+
+    [Tooltip("Used when running inside the Unity Editor.")]
     [SerializeField]
     private string editorEndpoint =
         "http://127.0.0.1:8000/v1/assess";
 
+    [Tooltip(
+        "Used on the Quest build. " +
+        "For local testing, use your computer's LAN IP. " +
+        "For deployment, use an HTTPS backend URL."
+    )]
     [SerializeField]
     private string headsetEndpoint =
-        "https://replace-this-later.example.com/v1/assess";
+        "http://192.168.1.100:8000/v1/assess";
 
     [SerializeField]
     [Min(1)]
@@ -24,7 +31,8 @@ public sealed class RipFinderAgentClient : MonoBehaviour
     public event Action<RipFinderAssessmentResponse>
         AssessmentReceived;
 
-    public event Action<string> AssessmentFailed;
+    public event Action<string>
+        AssessmentFailed;
 
     private string Endpoint
     {
@@ -38,6 +46,14 @@ public sealed class RipFinderAgentClient : MonoBehaviour
         }
     }
 
+    private void Start()
+    {
+        Debug.Log(
+            "[RipFinder AI] Assessment endpoint: " +
+            Endpoint
+        );
+    }
+
     public void RequestAssessment(
         string beach,
         bool ripDetected,
@@ -47,26 +63,42 @@ public sealed class RipFinderAgentClient : MonoBehaviour
     {
         if (IsRequestRunning)
         {
-            Debug.Log("Assessment request already in progress.");
+            Debug.Log(
+                "[RipFinder AI] " +
+                "Assessment request already in progress."
+            );
+
             return;
         }
 
-        var payload = new RipFinderAssessmentRequest
-        {
-            beach = string.IsNullOrWhiteSpace(beach)
-                ? "Unknown beach"
-                : beach,
-            rip_detected = ripDetected,
-            confidence = ripDetected
-                ? Mathf.Clamp01(confidence)
-                : 0f,
-            detection_count = ripDetected
-                ? Mathf.Max(1, detectionCount)
-                : 0,
-            forecast = forecast ?? string.Empty
-        };
+        var payload =
+            new RipFinderAssessmentRequest
+            {
+                beach =
+                    string.IsNullOrWhiteSpace(beach)
+                        ? "Unknown beach"
+                        : beach,
 
-        StartCoroutine(SendAssessment(payload));
+                rip_detected =
+                    ripDetected,
+
+                confidence =
+                    ripDetected
+                        ? Mathf.Clamp01(confidence)
+                        : 0f,
+
+                detection_count =
+                    ripDetected
+                        ? Mathf.Max(1, detectionCount)
+                        : 0,
+
+                forecast =
+                    forecast ?? string.Empty
+            };
+
+        StartCoroutine(
+            SendAssessment(payload)
+        );
     }
 
     private IEnumerator SendAssessment(
@@ -74,67 +106,114 @@ public sealed class RipFinderAgentClient : MonoBehaviour
     {
         IsRequestRunning = true;
 
-        string json = JsonUtility.ToJson(payload);
-        Debug.Log($"Sending assessment request: {json}");
+        string json =
+            JsonUtility.ToJson(payload);
 
-        byte[] body = Encoding.UTF8.GetBytes(json);
+        Debug.Log(
+            "[RipFinder AI] Sending assessment request: " +
+            json
+        );
 
-        using var request = new UnityWebRequest(
-            Endpoint,
-            UnityWebRequest.kHttpVerbPOST);
+        byte[] body =
+            Encoding.UTF8.GetBytes(json);
 
-        request.uploadHandler = new UploadHandlerRaw(body);
-        request.downloadHandler = new DownloadHandlerBuffer();
+        using var request =
+            new UnityWebRequest(
+                Endpoint,
+                UnityWebRequest.kHttpVerbPOST
+            );
+
+        request.uploadHandler =
+            new UploadHandlerRaw(body);
+
+        request.downloadHandler =
+            new DownloadHandlerBuffer();
+
         request.SetRequestHeader(
             "Content-Type",
-            "application/json");
+            "application/json"
+        );
 
-        request.timeout = timeoutSeconds;
+        request.timeout =
+            timeoutSeconds;
 
         yield return request.SendWebRequest();
 
         IsRequestRunning = false;
 
-        if (request.result != UnityWebRequest.Result.Success)
+        if (
+            request.result !=
+            UnityWebRequest.Result.Success
+        )
         {
-            string errorMessage =
-                $"Assessment failed. HTTP {request.responseCode}: " +
-                $"{request.error}\n" +
-                $"{request.downloadHandler.text}";
+            string responseBody =
+                request.downloadHandler != null
+                    ? request.downloadHandler.text
+                    : string.Empty;
 
-            Debug.LogWarning(errorMessage);
-            AssessmentFailed?.Invoke(errorMessage);
+            string errorMessage =
+                "[RipFinder AI] Assessment failed. " +
+                $"HTTP {request.responseCode}: " +
+                $"{request.error}\n" +
+                responseBody;
+
+            Debug.LogWarning(
+                errorMessage
+            );
+
+            AssessmentFailed?.Invoke(
+                errorMessage
+            );
+
             yield break;
         }
 
         try
         {
-            string responseJson = request.downloadHandler.text;
+            string responseJson =
+                request.downloadHandler.text;
 
             Debug.Log(
-                $"Assessment response received: {responseJson}");
+                "[RipFinder AI] Assessment response received: " +
+                responseJson
+            );
 
             var response =
-                JsonUtility.FromJson<RipFinderAssessmentResponse>(
-                    responseJson);
+                JsonUtility
+                    .FromJson<RipFinderAssessmentResponse>(
+                        responseJson
+                    );
 
-            if (response == null ||
-                string.IsNullOrWhiteSpace(response.risk_level))
+            if (
+                response == null ||
+                string.IsNullOrWhiteSpace(
+                    response.risk_level
+                )
+            )
             {
                 throw new InvalidOperationException(
-                    "The API response is missing risk_level.");
+                    "The API response is missing risk_level."
+                );
             }
 
-            AssessmentReceived?.Invoke(response);
+            AssessmentReceived?.Invoke(
+                response
+            );
         }
         catch (Exception exception)
         {
             string errorMessage =
-                "Could not parse the assessment response: " +
+                "[RipFinder AI] Could not parse " +
+                "the assessment response: " +
                 exception.Message;
 
-            Debug.LogError(errorMessage);
-            AssessmentFailed?.Invoke(errorMessage);
+            Debug.LogError(
+                errorMessage
+            );
+
+            AssessmentFailed?.Invoke(
+                errorMessage
+            );
         }
     }
 }
