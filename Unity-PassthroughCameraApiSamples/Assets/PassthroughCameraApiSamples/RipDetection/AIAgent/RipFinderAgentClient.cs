@@ -137,7 +137,17 @@ public sealed class RipFinderAgentClient : MonoBehaviour
         request.timeout =
             timeoutSeconds;
 
+        // RIPFINDER_TIMING (removable instrumentation): client-observed HTTP
+        // round-trip. This is transport + serialization + full server processing
+        // (deterministic engine + Claude generation), NOT pure network latency.
+        double t_http0 = Time.realtimeSinceStartupAsDouble;
+
         yield return request.SendWebRequest();
+
+        double t_http1 = Time.realtimeSinceStartupAsDouble;
+        Debug.Log(
+            $"RIPFINDER_TIMING,stage=http_round_trip,ms={(t_http1 - t_http0) * 1000.0:0.00}"
+        );
 
         IsRequestRunning = false;
 

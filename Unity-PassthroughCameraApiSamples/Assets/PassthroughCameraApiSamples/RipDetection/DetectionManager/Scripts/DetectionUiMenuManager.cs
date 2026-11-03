@@ -109,6 +109,16 @@ namespace PassthroughCameraSamples.MultiObjectDetection
             }
         }
 
+        // Leaves the start menu and begins live detection, same as pressing A.
+        public void StartDetection()
+        {
+            if (m_initialMenu)
+            {
+                m_buttonSound?.Play();
+                OnPauseMenu(false);
+            }
+        }
+
         private void OnPauseMenu(bool visible)
         {
             m_initialMenu = false;
@@ -125,9 +135,10 @@ namespace PassthroughCameraSamples.MultiObjectDetection
         public void UpdateLabelInformation()
         {
             string inferenceTimeStr = m_lastInferenceMs > 0 ? $"{m_lastInferenceMs:0.00} ms" : "-- ms";
-            string fpsStr = m_lastFps > 0 ? $"{m_lastFps:0.00} FPS" : "-- FPS";
+            // 1000 / inference time: inference throughput, not the app's render frame rate.
+            string fpsStr = m_lastFps > 0 ? $"{m_lastFps:0.0} per second" : "-- per second";
             string modelName = m_inferenceManager != null ? m_inferenceManager.GetModelType() : "--";
-            m_labelInfromation.text = $"Unity Sentis version: 2.1.3\nAI model: {modelName}\nInference time: {inferenceTimeStr}\nFrame rate: {fpsStr}";
+            m_labelInfromation.text = $"Unity Sentis version: 2.1.3\nAI model: {modelName}\nInference time: {inferenceTimeStr}\nInference rate: {fpsStr}";
         }
 
         public void SetInferenceStats(float inferenceTimeMs)

@@ -80,9 +80,6 @@ namespace PassthroughCameraSamples.MultiObjectDetection
 
         private List<GameObject> m_arrowPool = new();
 
-        private static float Sigmoid(float x) =>
-            1f / (1f + Mathf.Exp(-x));
-
         private int m_activeBoxCount = 0;
 
 
@@ -92,20 +89,12 @@ namespace PassthroughCameraSamples.MultiObjectDetection
         private Coroutine m_restoreTextCoroutine;
 
         private string m_baseFooterText =
-            "Pinch to grab poster from a distance\n" +
-            " and move to reposition. Press Meta\n" +
-            " button and open camera to record.";
+            "Press [B] to switch the detection model.\n" +
+            "Pinch to grab and move the safety poster.";
 
         private float lastScreenshotTime = 0f;
 
         private float screenshotCooldown = 3f;
-
-        private Dictionary<int, int> lastClassAssignments =
-            new Dictionary<int, int>();
-
-
-        private const float SWITCH_THRESHOLD = 0.0005f;
-
 
         public List<BoundingBox> BoxDrawn = new();
 
@@ -143,6 +132,12 @@ namespace PassthroughCameraSamples.MultiObjectDetection
             public string ClassName;
 
             public float Confidence;
+
+            // Box in source-image space, normalized 0-1 with origin top-left.
+            public float NormCenterX;
+            public float NormCenterY;
+            public float NormWidth;
+            public float NormHeight;
         }
 
 
@@ -238,12 +233,60 @@ namespace PassthroughCameraSamples.MultiObjectDetection
         }
 
 
+        // Shows or hides the head-locked detection overlay (boxes + arrows),
+        // e.g. while a still test image is shown on the demo panel instead.
+        public void SetOverlayVisible(bool visible)
+        {
+            m_displayImage.gameObject.SetActive(visible);
+
+            if (m_arrowCanvasParent != null)
+            {
+                m_arrowCanvasParent.gameObject.SetActive(visible);
+            }
+        }
+
+
         public void SetDetectionCapture(Texture image)
         {
             m_displayImage.texture = image;
 
 #if UNITY_ANDROID && !UNITY_EDITOR
             m_detectionCanvas.CapturePosition();
+#endif
+        }
+
+
+        // Shows the safety poster (once) and saves a passthrough snapshot
+        // (at most every screenshotCooldown seconds). Runs only after a rip
+        // has persisted across frames, and after the timed post-processing.
+        private void OnPersistentRip()
+        {
+            if (!posterDisplayed && ripCurrentPosterObject != null)
+            {
+                posterDisplayed = true;
+                StartCoroutine(ShowPosterWithDelay());
+            }
+
+            if (Time.time - lastScreenshotTime <= screenshotCooldown)
+            {
+                return;
+            }
+
+            lastScreenshotTime = Time.time;
+
+#if UNITY_ANDROID && !UNITY_EDITOR
+            var texture =
+                m_runManager.CapturePassthroughFrame(
+                    m_webCamTextureManager.WebCamTexture);
+
+            m_runManager.SaveTextureAsPNG(
+                texture,
+                $"rip_{DateTime.Now:yyyyMMdd_HHmmss}.png");
+
+            // The capture allocates a new texture each time; free it.
+            Destroy(texture);
+
+            ShowScreenshotMessage();
 #endif
         }
 
@@ -270,6 +313,14 @@ namespace PassthroughCameraSamples.MultiObjectDetection
 #endif
 
             ClearAnnotations();
+
+
+            // RIPFINDER_TIMING (removable instrumentation): start of post-processing.
+            // Covers output decoding + confidence filtering + candidate construction +
+            // NMS. The timer STOPS right after NMS, before UI box/arrow drawing, so
+            // overlay drawing is EXCLUDED. The small rip-summarization loop that runs
+            // after drawing is also not included (it is O(number of detections)).
+            double t_postProc0 = Time.realtimeSinceStartupAsDouble;
 
 
             // -----------------------------------------------------
@@ -331,41 +382,30 @@ namespace PassthroughCameraSamples.MultiObjectDetection
 
 
                 // -------------------------------------------------
-                // 84-channel model output
+                // YOLOv8 output: [x, y, w, h, score_0 .. score_n-1]
+                // per anchor. Class scores are already sigmoid
+                // probabilities (there is no objectness channel), so
+                // the confidence is the best class score.
+                //   5 channels  -> 1 class  (medium / nano: rip)
+                //   6 channels  -> 2 classes (dual: rip, sediment_rip)
+                //   84 channels -> 80 classes (generic COCO export)
+                // Poster and snapshot are triggered later, once a rip
+                // has persisted across frames (see OnPersistentRip).
                 // -------------------------------------------------
 
-                if (channels == 84)
+                if (channels == 5 || channels == 6 || channels == 84)
                 {
-                    float objConf =
-                        output[0, 4, i];
-
-                    float maxClassConf = 0f;
-
-                    int best = 0;
-
-
-                    for (int j = 5; j < 84; j++)
+                    for (int c = 4; c < channels; c++)
                     {
-                        float classConf =
-                            output[0, j, i];
+                        float classScore =
+                            output[0, c, i];
 
-                        if (
-                            classConf >
-                            maxClassConf
-                        )
+                        if (classScore > confidence)
                         {
-                            maxClassConf =
-                                classConf;
-
-                            best =
-                                j - 5;
+                            confidence = classScore;
+                            classId = c - 4;
                         }
                     }
-
-
-                    confidence =
-                        objConf *
-                        maxClassConf;
 
 
                     if (confidence >= 0.25f)
@@ -375,240 +415,7 @@ namespace PassthroughCameraSamples.MultiObjectDetection
                         w = output[0, 2, i];
                         h = output[0, 3, i];
 
-                        classId = best;
-
                         keep = true;
-
-
-                        if (
-                            classId ==
-                            RIP_CLASS_ID
-                        )
-                        {
-                            if (
-                                Time.time -
-                                lastScreenshotTime >
-                                screenshotCooldown
-                            )
-                            {
-                                lastScreenshotTime =
-                                    Time.time;
-
-#if UNITY_ANDROID && !UNITY_EDITOR
-                                var texture =
-                                    m_runManager
-                                        .CapturePassthroughFrame(
-                                            m_webCamTextureManager
-                                                .WebCamTexture
-                                        );
-
-                                m_runManager
-                                    .SaveTextureAsPNG(
-                                        texture,
-                                        $"rip_{DateTime.Now:yyyyMMdd_HHmmss}.png"
-                                    );
-
-                                ShowScreenshotMessage();
-#endif
-                            }
-
-
-                            if (
-                                !posterDisplayed &&
-                                ripCurrentPosterObject != null
-                            )
-                            {
-                                posterDisplayed = true;
-
-                                StartCoroutine(
-                                    ShowPosterWithDelay()
-                                );
-                            }
-                        }
-                    }
-                }
-
-
-                // -------------------------------------------------
-                // 6-channel model output
-                // -------------------------------------------------
-
-                else if (channels == 6)
-                {
-                    float obj =
-                        output[0, 4, i];
-
-                    float clsLogit =
-                        output[0, 5, i];
-
-
-                    float objProb =
-                        (obj < 0f || obj > 1f)
-                            ? Sigmoid(obj)
-                            : obj;
-
-
-                    int boxId = i;
-
-
-                    bool isSediment =
-                        clsLogit > 0.0001f;
-
-                    int currentClass =
-                        isSediment
-                            ? 1
-                            : 0;
-
-
-                    if (
-                        lastClassAssignments
-                            .TryGetValue(
-                                boxId,
-                                out int lastClass
-                            )
-                    )
-                    {
-                        if (
-                            lastClass != currentClass &&
-                            Mathf.Abs(clsLogit) <
-                            SWITCH_THRESHOLD
-                        )
-                        {
-                            currentClass =
-                                lastClass;
-                        }
-                    }
-
-
-                    lastClassAssignments[boxId] =
-                        currentClass;
-
-
-                    float classProb =
-                        Sigmoid(clsLogit);
-
-                    confidence =
-                        objProb *
-                        classProb;
-
-
-                    if (confidence >= 0.15f)
-                    {
-                        x = output[0, 0, i];
-                        y = output[0, 1, i];
-                        w = output[0, 2, i];
-                        h = output[0, 3, i];
-
-                        classId =
-                            currentClass;
-
-                        keep = true;
-
-
-                        if (
-                            !posterDisplayed &&
-                            ripCurrentPosterObject != null
-                        )
-                        {
-                            posterDisplayed = true;
-
-                            StartCoroutine(
-                                ShowPosterWithDelay()
-                            );
-                        }
-
-
-                        if (
-                            Time.time -
-                            lastScreenshotTime >
-                            screenshotCooldown
-                        )
-                        {
-                            lastScreenshotTime =
-                                Time.time;
-
-#if UNITY_ANDROID && !UNITY_EDITOR
-                            var texture =
-                                m_runManager
-                                    .CapturePassthroughFrame(
-                                        m_webCamTextureManager
-                                            .WebCamTexture
-                                    );
-
-                            m_runManager
-                                .SaveTextureAsPNG(
-                                    texture,
-                                    $"rip_{DateTime.Now:yyyyMMdd_HHmmss}.png"
-                                );
-
-                            ShowScreenshotMessage();
-#endif
-                        }
-                    }
-                }
-
-
-                // -------------------------------------------------
-                // 5-channel model output
-                // -------------------------------------------------
-
-                else if (channels == 5)
-                {
-                    confidence =
-                        output[0, 4, i];
-
-
-                    if (confidence >= 0.25f)
-                    {
-                        x = output[0, 0, i];
-                        y = output[0, 1, i];
-                        w = output[0, 2, i];
-                        h = output[0, 3, i];
-
-                        classId = 0;
-
-                        keep = true;
-
-
-                        if (
-                            !posterDisplayed &&
-                            ripCurrentPosterObject != null
-                        )
-                        {
-                            posterDisplayed = true;
-
-                            StartCoroutine(
-                                ShowPosterWithDelay()
-                            );
-                        }
-
-
-                        if (
-                            Time.time -
-                            lastScreenshotTime >
-                            screenshotCooldown
-                        )
-                        {
-                            lastScreenshotTime =
-                                Time.time;
-
-#if UNITY_ANDROID && !UNITY_EDITOR
-                            var texture =
-                                m_runManager
-                                    .CapturePassthroughFrame(
-                                        m_webCamTextureManager
-                                            .WebCamTexture
-                                    );
-
-                            m_runManager
-                                .SaveTextureAsPNG(
-                                    texture,
-                                    $"rip_{DateTime.Now:yyyyMMdd_HHmmss}.png"
-                                );
-
-                            ShowScreenshotMessage();
-#endif
-                        }
                     }
                 }
 
@@ -708,6 +515,11 @@ namespace PassthroughCameraSamples.MultiObjectDetection
                         Confidence =
                             confidence,
 
+                        NormCenterX = xSrc / imageWidth,
+                        NormCenterY = y / imageHeight,
+                        NormWidth = w / imageWidth,
+                        NormHeight = h / imageHeight,
+
                         WorldPos =
                             new Vector3(
                                 0,
@@ -736,6 +548,14 @@ namespace PassthroughCameraSamples.MultiObjectDetection
                     candidates,
                     0.5f
                 );
+
+
+            // RIPFINDER_TIMING (removable instrumentation): end of post-processing,
+            // measured BEFORE UI box/arrow drawing below.
+            double t_postProc1 = Time.realtimeSinceStartupAsDouble;
+            Debug.Log(
+                $"RIPFINDER_TIMING,stage=post_processing,ms={(t_postProc1 - t_postProc0) * 1000.0:0.00}"
+            );
 
 
             // -----------------------------------------------------
@@ -883,12 +703,6 @@ namespace PassthroughCameraSamples.MultiObjectDetection
             }
 
 
-            Debug.Log(
-                "[RipFinder Detection] " +
-                $"Detected={ripDetected}, " +
-                $"Count={ripDetectionCount}, " +
-                $"HighestConfidence={highestConfidence:F2}"
-            );
 
 
             if (assessmentCoordinator != null)
@@ -899,6 +713,16 @@ namespace PassthroughCameraSamples.MultiObjectDetection
                         highestConfidence,
                         ripDetectionCount
                     );
+            }
+
+            bool ripPersisting =
+                assessmentCoordinator != null
+                    ? assessmentCoordinator.RipPersisting
+                    : ripDetected;
+
+            if (ripDetected && ripPersisting)
+            {
+                OnPersistentRip();
             }
             else
             {
@@ -913,44 +737,6 @@ namespace PassthroughCameraSamples.MultiObjectDetection
             OnObjectsDetected?.Invoke(
                 keepIdx.Count
             );
-        }
-
-
-        private void CleanupOldAssignments()
-        {
-            if (
-                lastClassAssignments.Count >
-                100
-            )
-            {
-                var keysToRemove =
-                    lastClassAssignments
-                        .Keys
-                        .Take(50)
-                        .ToList();
-
-
-                foreach (
-                    var key in keysToRemove
-                )
-                {
-                    lastClassAssignments
-                        .Remove(key);
-                }
-            }
-        }
-
-
-        private void Update()
-        {
-            if (
-                Time.frameCount %
-                30 ==
-                0
-            )
-            {
-                CleanupOldAssignments();
-            }
         }
 
 

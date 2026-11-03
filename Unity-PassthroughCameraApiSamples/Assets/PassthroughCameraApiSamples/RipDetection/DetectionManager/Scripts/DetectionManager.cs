@@ -41,13 +41,21 @@ namespace PassthroughCameraSamples.MultiObjectDetection
         private bool usingMedium = true;
 
         private bool m_isPaused = true;
+        public bool IsPaused => m_isPaused;
         private List<GameObject> m_spwanedEntities = new();
         private bool m_isStarted = false;
         private bool m_isSentisReady = false;
         private float m_delayPauseBackTime = 0;
 
         #region Unity Functions
-        private void Awake() => OVRManager.display.RecenteredPose += CleanMarkersCallBack;
+        private void Awake()
+        {
+            // OVRManager.display is null in the Editor when no headset is connected.
+            if (OVRManager.display != null)
+            {
+                OVRManager.display.RecenteredPose += CleanMarkersCallBack;
+            }
+        }
 
         private IEnumerator Start()
         {
@@ -106,12 +114,9 @@ namespace PassthroughCameraSamples.MultiObjectDetection
                 {
                     ToggleModel();
                 }
-                // Press A button to spawn 3d markers
-                if ((OVRInput.GetUp(m_actionButton) || Input.GetKeyDown(KeyCode.A)) && m_delayPauseBackTime <= 0)
-                {
-                    Debug.Log("[RipFinderDetectionManager] A button pressed. Attempting to spawn detected markers.");
-                    SpwanCurrentDetectedObjects();
-                }
+                // A-button 3D markers are disabled: detections carry no real world
+                // position (WorldPos is a placeholder), and rips at a beach are
+                // beyond the depth sensor's range. See SpwanCurrentDetectedObjects.
                 // Cooldown for the A button after return from the pause menu
                 m_delayPauseBackTime -= Time.deltaTime;
                 if (m_delayPauseBackTime <= 0)
@@ -125,7 +130,6 @@ namespace PassthroughCameraSamples.MultiObjectDetection
             {
                 if (m_isPaused)
                 {
-                    Debug.Log("[RipFinderDetectionManager] App is paused. Skipping inference.");
                     // Set the delay time for the A button to return from the pause menu
                     m_delayPauseBackTime = 0.1f;
                 }
@@ -135,7 +139,6 @@ namespace PassthroughCameraSamples.MultiObjectDetection
             // Run a new inference when the current inference finishes
             if (!m_runInference.IsRunning())
             {
-                Debug.Log("[RipFinderDetectionManager] Calling RunInference()");
                 m_runInference.RunInference(m_webCamTextureManager.WebCamTexture);
             }
         }

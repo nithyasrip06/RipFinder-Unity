@@ -1,0 +1,45 @@
+%% RipFinder architecture — paper Figure 2
+%% Render (no tooling is bundled; both pull their own deps):
+%%   npx -y @mermaid-js/mermaid-cli -i docs/paper_architecture.mmd -o paper_figures/fig_architecture.pdf
+%%   npx -y @mermaid-js/mermaid-cli -i docs/paper_architecture.mmd -o paper_figures/fig_architecture.png -s 3
+%% Or paste into https://mermaid.live and export SVG/PDF.
+%%
+%% Invariants enforced by this diagram:
+%%   - Claude is DOWNSTREAM of risk_level/risk_score (never computes them).
+%%   - Only structured detection scalars + forecast text leave Unity (no imagery).
+%%   - The deterministic engine runs BEFORE Claude.
+%%   - The deterministic fallback path is shown (dashed).
+flowchart TD
+    subgraph UNITY["ON-DEVICE / UNITY  (Meta Quest 3)"]
+        A["Passthrough camera frame<br/>→ 640×640 input tensor"]
+        B["YOLOv8 ONNX detector<br/>medium.onnx (single-class)"]
+        C["Unity Sentis<br/>scheduled inference"]
+        D["Runtime confidence filtering<br/>confidence ≥ 0.25"]
+        E["Non-Maximum Suppression<br/>IoU 0.5"]
+        F["Detection summary<br/>rip_detected · confidence · detection_count"]
+        PANEL["Assessment panel<br/>risk_level · risk_score<br/>summary · recommendation · safety_note"]
+    end
+
+    FC["Filtered NOAA/NWS surf-zone<br/>forecast text (SLO section)"]
+
+    subgraph BACKEND["NETWORKED BACKEND  (FastAPI POST /v1/assess)"]
+        H["Deterministic risk engine<br/>(authoritative, auditable)"]
+        RS[["risk_level + risk_score"]]
+        J["Anthropic Claude<br/>(user-facing text only)"]
+        K["summary + recommendation + safety_note<br/>assessment_source = claude"]
+        L["Deterministic fallback text<br/>assessment_source = rule_engine_fallback"]
+    end
+
+    A --> B --> C --> D --> E --> F
+    F -- "structured scalars only<br/>(no camera imagery)" --> H
+    FC -- "forecast string" --> H
+    H --> RS
+    RS --> J --> K --> PANEL
+    RS -. "Claude unavailable" .-> L -. "HTTP 200" .-> PANEL
+
+    classDef device fill:#e8f0fe,stroke:#3b6fb0,color:#10233f;
+    classDef backend fill:#eef7ee,stroke:#3f8f4f,color:#123018;
+    classDef authoritative fill:#fff3d6,stroke:#c9902a,color:#3a2b06;
+    class A,B,C,D,E,F,PANEL device;
+    class H,J,K,L backend;
+    class RS authoritative;

@@ -11,7 +11,11 @@ public class LiveSnapshotPanel : MonoBehaviour {
 
     Texture2D currentTex;
 
-    void OnEnable() { StartCoroutine(Loop()); }
+    void OnEnable() {
+        // Stay hidden until an image arrives, so a failed fetch isn't a blank white box.
+        target.enabled = currentTex != null;
+        StartCoroutine(Loop());
+    }
     void OnDisable() { if (currentTex) Destroy(currentTex); }
 
     IEnumerator Loop() {
@@ -25,6 +29,7 @@ public class LiveSnapshotPanel : MonoBehaviour {
                     if (currentTex) Destroy(currentTex);
                     currentTex = tex;
                     target.texture = currentTex;
+                    target.enabled = true;
                 } else {
                     Debug.LogWarning($"Snapshot fetch failed: {req.error}");
                 }

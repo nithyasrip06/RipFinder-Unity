@@ -534,7 +534,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 'PRESS [A] OR PINCH TO START
+  m_Text: 'PRESS [A] OR SELECT 7 ON THE DEMO PANEL TO START
 
     PRESS [B] TO CHANGE MODEL'
 --- !u!114 &6711942131464690349
@@ -1598,8 +1598,8 @@ MonoBehaviour:
     m_HorizontalOverflow: 1
     m_VerticalOverflow: 1
     m_LineSpacing: 1
-  m_Text: "Pinch to grab poster from a distance \nand move to reposition. Press Meta
-    \nbutton and open Camera to record."
+  m_Text: "Press [B] to switch the detection model.\nPinch to grab and move the safety
+    poster."
 --- !u!1 &8303431974483125155
 GameObject:
   m_ObjectHideFlags: 0

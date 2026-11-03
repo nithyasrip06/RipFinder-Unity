@@ -120,7 +120,6 @@ namespace PassthroughCameraSamples.MultiObjectDetection
         #region Public Functions
         public void RunInference(Texture targetTexture)
         {
-            Debug.Log("[SentisInferenceRunManager] RunInference() called.");
             // If the inference is not running prepare the input
             if (!m_started)
             {
@@ -135,7 +134,6 @@ namespace PassthroughCameraSamples.MultiObjectDetection
                 m_uiInference.SetDetectionCapture(targetTexture);
                 // Convert the texture to a Tensor and schedule the inference
                 m_input = TextureConverter.ToTensor(targetTexture, m_inputSize.x, m_inputSize.y, 3);
-                Debug.Log("[InferenceRunManager] Scheduling inference with camera texture");
                 inferenceStartTime = Time.realtimeSinceStartup;
                 m_schedule = m_engine.ScheduleIterable(m_input);
                 m_download_state = 0;
@@ -178,8 +176,15 @@ namespace PassthroughCameraSamples.MultiObjectDetection
                             if (++it % m_layersPerFrame == 0)
                                 return;
                         }
-                        inferenceEndTime = Time.realtimeSinceStartup; 
+                        inferenceEndTime = Time.realtimeSinceStartup;
                         lastInferenceDurationMs = (inferenceEndTime - inferenceStartTime) * 1000f;
+                        // RIPFINDER_TIMING (removable instrumentation): logs the already-
+                        // computed scheduled-inference duration. This is WALL-CLOCK from
+                        // just before ScheduleIterable to schedule completion; because the
+                        // schedule is stepped m_layersPerFrame layers/frame (yielding across
+                        // frames), it spans multiple Update() frames and includes inter-frame
+                        // gaps. It is NOT pure compute time and NOT application frame rate.
+                        Debug.Log($"RIPFINDER_TIMING,stage=inference,ms={lastInferenceDurationMs:0.00}");
                         m_download_state = 1;
                     }
                     else
@@ -244,11 +249,9 @@ namespace PassthroughCameraSamples.MultiObjectDetection
                             m_output = m_pullOutput.ReadbackAndClone();
                             m_isWaiting = false;
 
-                            Debug.Log($"[InferenceRunManager] Output tensor received - shape: {string.Join(", ", m_output.shape)}");
                             
                             if (m_output.shape[0] > 0)
                             {
-                                Debug.Log("Sentis: m_output ready");
                                 m_download_state = 2;
                             }
                             else
@@ -287,7 +290,6 @@ namespace PassthroughCameraSamples.MultiObjectDetection
                     break;
                     */
                 case 2:
-                    Debug.Log("[InferenceRunManager] Calling DrawUIBoxes()");
                     m_uiInference.DrawUIBoxes(m_output, m_inputSize.x, m_inputSize.y);
                     m_detectionMenu?.SetInferenceStats(lastInferenceDurationMs);
                     m_download_state = 5;

@@ -403,6 +403,9 @@ GameObject:
   - component: {fileID: 71749127}
   - component: {fileID: 71749126}
   - component: {fileID: 71749125}
+  - component: {fileID: 71749129}
+  - component: {fileID: 71749130}
+  - component: {fileID: 71749131}
   m_Layer: 0
   m_Name: RipFinderAIIntegration
   m_TagString: Untagged
@@ -442,6 +445,8 @@ MonoBehaviour:
   forecast: 
   cooldownSeconds: 15
   confidenceChangeThreshold: 0.1
+  persistenceWindow: 5
+  requiredRipFrames: 3
 --- !u!114 &71749127
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -455,7 +460,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   editorEndpoint: http://127.0.0.1:8000/v1/assess
-  headsetEndpoint: http://192.168.1.100:8000/v1/assess
+  headsetEndpoint: http://127.0.0.1:8000/v1/assess
   timeoutSeconds: 10
 --- !u!4 &71749128
 Transform:
@@ -472,6 +477,60 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &71749129
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 71749124}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2da6c72b0e383416881e14fa3e147572, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  agentClient: {fileID: 71749127}
+--- !u!114 &71749130
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 71749124}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1b6aa8d8f92cf41ea821150fa93183b6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  assessmentCoordinator: {fileID: 71749126}
+--- !u!114 &71749131
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 71749124}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f73c33eb9ab3471faac0d4dcd487bdad, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  agentClient: {fileID: 71749127}
+  assessmentCoordinator: {fileID: 71749126}
+  debugControls: {fileID: 71749129}
+  mockDetectionSource: {fileID: 71749130}
+  inferenceManager: {fileID: 1711459073}
+  detectionManager: {fileID: 1542092273}
+  inferenceUi: {fileID: 0}
+  detectionMenu: {fileID: 0}
+  ripTestImage: {fileID: 2800000, guid: cfac1e9ae8a024c22a474c8f7ef5a30d, type: 3}
+  noRipTestImage: {fileID: 2800000, guid: 224583c8b450f4e8d8dfe63c76616351, type: 3}
+  roundedSprite: {fileID: 0}
+  anchor: {fileID: 442847204}
+  localPosition: {x: -0.42, y: -0.12, z: 1.2}
+  localEulerAngles: {x: 0, y: -19, z: 0}
+  scale: 0.0015
+  holdSeconds: 20
 --- !u!1001 &91842641
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3082,17 +3141,17 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2070063584}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 1.5}
+  m_LocalRotation: {x: 0, y: 0.16505, z: 0, w: 0.98629}
+  m_LocalPosition: {x: 0, y: 0, z: 1.2}
   m_LocalScale: {x: 0.0015, y: 0.0015, z: 0.0015}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 455471621}
   m_Father: {fileID: 442847204}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 19, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0.42, y: -0.12}
   m_SizeDelta: {x: 688, y: 386.5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1001 &7042133910910641334
